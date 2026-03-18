@@ -328,9 +328,15 @@ class QMIXLearner:
         self.lr = lr
         self.tau = tau
         self.rng = random.Random(seed)
+        self._seed_upper_bound = 0xFFFFFFFF
 
         self.agent_nets = [
-            AgentQNetwork(obs_dim=obs_dim, action_dim=action_dim, hidden_dim=hidden_dim, seed=self.rng.randint(0, 10**9))
+            AgentQNetwork(
+                obs_dim=obs_dim,
+                action_dim=action_dim,
+                hidden_dim=hidden_dim,
+                seed=self.rng.randint(0, self._seed_upper_bound),
+            )
             for _ in range(num_agents)
         ]
         self.target_agent_nets = [copy.deepcopy(net) for net in self.agent_nets]
@@ -339,7 +345,7 @@ class QMIXLearner:
             num_agents=num_agents,
             state_dim=state_dim,
             embed_dim=mixer_embed_dim,
-            seed=self.rng.randint(0, 10**9),
+            seed=self.rng.randint(0, self._seed_upper_bound),
         )
         self.target_mixer = copy.deepcopy(self.mixer)
 
@@ -407,7 +413,7 @@ class QMIXLearner:
 
         td_errors = [q_tot[b] - targets[b] for b in range(batch_size)]
         loss = sum(err * err for err in td_errors) / batch_size
-        grad_q_total = [2.0 * err / batch_size for err in td_errors]
+        grad_q_total = [2.0 * err for err in td_errors]
 
         grad_agent_q = self.mixer.backward(mixer_cache, grad_q_total, lr=self.lr)
 

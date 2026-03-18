@@ -19,8 +19,9 @@ def train(episodes: int = 5, steps_per_episode: int = 30) -> None:
     for episode in range(episodes):
         state = env.reset()
         total_reward = 0.0
+        metrics = {}
 
-        for _ in range(steps_per_episode):
+        for step in range(steps_per_episode):
             local_obs = state["local_obs"]
             global_state = state["global_state"]
 
@@ -45,7 +46,7 @@ def train(episodes: int = 5, steps_per_episode: int = 30) -> None:
 
         print(
             f"Episode {episode + 1}: total_reward={total_reward:.3f}, "
-            f"last_loss={metrics['loss']:.6f}"
+            f"last_loss={metrics.get('loss', float('nan')):.6f}"
         )
 
 

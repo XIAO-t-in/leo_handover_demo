@@ -38,6 +38,8 @@ class LeoHandoverEnv:
     """
 
     EARTH_RADIUS_KM = 6371.0
+    OCCUPANCY_RISK_WEIGHT = 0.35
+    MIN_PROJECTED_LOAD = 1
 
     def __init__(
         self,
@@ -176,9 +178,12 @@ class LeoHandoverEnv:
         current_load = self.satellite_loads[sat_id]
         overload_component = 0.0
         if projected_load > self.sat_capacity:
-            overload_component = (projected_load - self.sat_capacity) / projected_load
+            # max(..., MIN_PROJECTED_LOAD) keeps denominator safe under future refactors.
+            overload_component = (projected_load - self.sat_capacity) / max(
+                projected_load, self.MIN_PROJECTED_LOAD
+            )
         occupancy_component = current_load / self.sat_capacity
-        risk = overload_component + 0.35 * occupancy_component
+        risk = overload_component + self.OCCUPANCY_RISK_WEIGHT * occupancy_component
         return min(1.0, max(0.0, risk))
 
     def _action_to_satellite(self, action: int) -> int:

@@ -38,11 +38,17 @@ class TestLeoHandoverEnv(unittest.TestCase):
         visible = env.visible_satellites(0)
         self.assertGreater(len(visible), 0)
         target_sat = visible[0]
+        previous_sat = (target_sat + 1) % env.num_satellites
         projected = [0 for _ in range(env.num_satellites)]
         projected[target_sat] = 1
 
         stay_utility = env.evaluate_utility(user_id=0, target_sat=target_sat, projected_loads=projected, prev_sat=target_sat)
-        switch_utility = env.evaluate_utility(user_id=0, target_sat=target_sat, projected_loads=projected, prev_sat=(1 - target_sat))
+        switch_utility = env.evaluate_utility(
+            user_id=0,
+            target_sat=target_sat,
+            projected_loads=projected,
+            prev_sat=previous_sat,
+        )
         self.assertAlmostEqual(stay_utility - switch_utility, env.switch_cost, places=6)
 
 

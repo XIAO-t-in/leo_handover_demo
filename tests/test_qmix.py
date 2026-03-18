@@ -51,7 +51,7 @@ class TestQMIXLearner(unittest.TestCase):
 
         post_w = self.learner.agent_nets[0].w2
         changed = any(
-            abs(pre_w[i][j] - post_w[i][j]) > 0.0
+            abs(pre_w[i][j] - post_w[i][j]) > 1e-12
             for i in range(len(pre_w))
             for j in range(len(pre_w[i]))
         )
